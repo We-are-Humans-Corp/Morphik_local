@@ -29,6 +29,7 @@ class DocumentChatRequest(BaseModel):
     message: str
     document_id: Optional[str] = None
     session_id: Optional[str] = None
+    model: Optional[str] = None  # Model selection from UI
 
 
 async def get_pdf_viewer(
@@ -180,10 +181,14 @@ async def complete_document_chat(
 
         # Get settings and model configuration
         settings = get_settings()
-        model_config = settings.REGISTERED_MODELS.get("gemini_flash", {})
+        
+        # Use model from request, fallback to completion model from settings
+        model_key = request.model or settings.COMPLETION_MODEL
+        model_config = settings.REGISTERED_MODELS.get(model_key, {})
 
         if not model_config:
-            raise HTTPException(status_code=500, detail="Model configuration not found")
+            logger.error(f"Model configuration not found for: {model_key}")
+            raise HTTPException(status_code=500, detail=f"Model configuration not found for: {model_key}")
 
         # Get chat history
         history_key = f"document_chat:{chat_id}"

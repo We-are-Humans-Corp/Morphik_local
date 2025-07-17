@@ -32,6 +32,7 @@ async def verify_token(authorization: str = Header(None)) -> AuthContext:  # noq
             entity_id=settings.dev_entity_id,
             permissions=set(settings.dev_permissions),
             user_id=settings.dev_entity_id,  # In dev mode, entity_id == user_id
+            app_id="dev_app_id",  # Add app_id for dev mode
         )
 
     # ------------------------------------------------------------------

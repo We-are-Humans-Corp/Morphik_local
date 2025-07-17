@@ -10,6 +10,7 @@ from core.auth_utils import verify_token
 from core.models.auth import AuthContext
 from core.models.model_config import ModelConfig
 from core.services_init import document_service
+from core.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -311,6 +312,13 @@ async def list_api_keys(
 ) -> Dict[str, Dict]:
     """List all configured API keys (sanitized)."""
     try:
+        settings = get_settings()
+        
+        # In self-hosted mode without user/app context, return empty API keys
+        if settings.MODE == "self_hosted" and (not auth.user_id or not auth.app_id):
+            logger.info("Self-hosted mode without user/app context, returning empty API keys")
+            return {}
+        
         if not auth.user_id or not auth.app_id:
             raise HTTPException(
                 status_code=400,
@@ -338,3 +346,33 @@ async def list_api_keys(
     except Exception as e:
         logger.error(f"Error listing API keys: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/custom")
+async def get_custom_models():
+    """Get custom models for self-hosted mode."""
+    try:
+        settings = get_settings()
+        # В self-hosted режиме возвращаем модели из конфигурации
+        if settings.MODE == "self_hosted":
+            if settings.REGISTERED_MODELS:
+                return [
+                    {
+                        "id": model_id,
+                        "name": model_config.get("model_name", model_id),
+                        "provider": model_id.split("_")[0] if "_" in model_id else "unknown",
+                        "type": "custom",
+                        "config": model_config
+                    }
+                    for model_id, model_config in settings.REGISTERED_MODELS.items()
+                ]
+            return []
+        
+        # Для cloud режима возвращаем пустой список
+        return []
+    except Exception as e:
+        logger.error(f"Error getting custom models: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get custom models: {str(e)}"
+        )

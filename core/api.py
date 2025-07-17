@@ -48,6 +48,7 @@ from core.routes.logs import router as logs_router  # noqa: E402 – import afte
 from core.routes.model_config import router as model_config_router
 from core.routes.models import router as models_router
 from core.routes.workflow import router as workflow_router
+from core.routes.auth import router as auth_router
 from core.services.telemetry import TelemetryService
 from core.services_init import document_service, workflow_service
 
@@ -257,6 +258,9 @@ app.include_router(models_router)
 
 # Register logs router
 app.include_router(logs_router)
+
+# Register auth router
+app.include_router(auth_router)
 
 # Single MorphikAgent instance (tool definitions cached)
 morphik_agent = MorphikAgent(document_service=document_service)
@@ -624,6 +628,17 @@ async def query_completion(
             # Check limits before proceeding
             await check_and_increment_limits(auth, "query", 1)
 
+        # Process llm_config if provided
+        llm_config = request.llm_config
+        if llm_config and "model" in llm_config:
+            model_key = llm_config["model"]
+            # Check if this is a registered model key (like "claude_opus")
+            if model_key in settings.REGISTERED_MODELS:
+                # Map to the full model name from configuration
+                model_config = settings.REGISTERED_MODELS[model_key]
+                llm_config["model"] = model_config.get("model_name", model_key)
+                logger.info(f"Mapped model key '{model_key}' to '{llm_config['model']}'")
+
         # Main query processing
         perf.start_phase("document_service_query")
         result = await document_service.query(
@@ -646,7 +661,7 @@ async def query_completion(
             history,
             perf,  # Pass performance tracker
             request.stream_response,
-            request.llm_config,
+            llm_config,
             request.padding,  # Pass padding parameter
         )
 

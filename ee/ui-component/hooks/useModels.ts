@@ -68,7 +68,7 @@ export function useModels(apiBaseUrl: string, authToken: string | null) {
         } else if (data.chat_models) {
           // Transform chat_models format
           transformedModels = data.chat_models.map(model => ({
-            id: model.config.model_name || model.model,
+            id: model.id,
             name: model.id.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
             provider: model.provider,
             description: `Model: ${model.model}`,

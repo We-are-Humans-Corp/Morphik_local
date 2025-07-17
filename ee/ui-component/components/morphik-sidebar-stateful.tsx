@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   IconFiles,
   IconSearch,
@@ -15,6 +16,7 @@ import {
   IconBook,
   IconMessageCircle,
 } from "@tabler/icons-react";
+import { useMorphik } from "@/contexts/morphik-context";
 
 type NavSecondaryItem =
   | {
@@ -137,7 +139,7 @@ export function MorphikSidebarStateful({
   const userData = {
     name: userProfile?.name || "Morphik User",
     email: userProfile?.email || "user@morphik.ai",
-    avatar: userProfile?.avatar || "/assets/placeholder-user.jpg",
+    avatar: userProfile?.avatar || "/assets/placeholder-user.svg",
   };
 
   return (

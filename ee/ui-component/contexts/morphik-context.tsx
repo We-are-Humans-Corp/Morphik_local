@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { extractTokenFromUri, getApiBaseUrlFromUri } from "@/lib/utils";
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
@@ -11,6 +11,7 @@ interface MorphikContextType {
   apiBaseUrl: string;
   isReadOnlyUri: boolean;
   updateConnectionUri: (uri: string) => void;
+  setAuthToken: (token: string | null) => void;
   userProfile?: {
     name?: string;
     email?: string;
@@ -49,13 +50,34 @@ export function MorphikProvider({
   onProfileNavigate?: (section: "account" | "billing" | "notifications") => void;
 }) {
   const [connectionUri, setConnectionUri] = useState<string | null>(externalConnectionUri || initialConnectionUri);
+  const [authTokenState, setAuthTokenState] = useState<string | null>(null);
 
-  const authToken = connectionUri ? extractTokenFromUri(connectionUri) : null;
+  // Initialize auth token from localStorage on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+      setAuthTokenState(storedToken);
+    }
+  }, []);
+
+  const authToken = authTokenState || (connectionUri ? extractTokenFromUri(connectionUri) : null);
   const apiBaseUrl = connectionUri ? getApiBaseUrlFromUri(connectionUri) : DEFAULT_API_BASE_URL;
 
   const updateConnectionUri = (uri: string) => {
     if (!isReadOnlyUri) {
       setConnectionUri(uri);
+    }
+  };
+
+  const setAuthToken = (token: string | null) => {
+    setAuthTokenState(token);
+    if (token) {
+      localStorage.setItem('authToken', token);
+      document.cookie = `authToken=${token}; path=/; max-age=604800`; // 7 days
+    } else {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
   };
 
@@ -67,6 +89,7 @@ export function MorphikProvider({
         apiBaseUrl,
         isReadOnlyUri,
         updateConnectionUri,
+        setAuthToken,
         userProfile,
         onLogout,
         onProfileNavigate,

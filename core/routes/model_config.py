@@ -6,6 +6,7 @@ from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException
 
 from core.auth_utils import verify_token
+from core.config import get_settings
 from core.models.auth import AuthContext
 from core.models.model_config import (
     CustomModel,
@@ -41,6 +42,12 @@ async def list_model_configs(
 ) -> List[ModelConfigResponse]:
     """List all model configurations for the authenticated user and app."""
     try:
+        # In self-hosted mode, return empty list if no user/app context
+        settings = get_settings()
+        if settings.MODE == "self_hosted" and (not auth.user_id or not auth.app_id):
+            logger.info("Self-hosted mode without user/app context, returning empty model configs")
+            return []
+            
         if not auth.user_id or not auth.app_id:
             raise HTTPException(
                 status_code=400,

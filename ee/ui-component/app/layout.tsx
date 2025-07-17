@@ -30,26 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-sidebar">
-            <MorphikProvider>
-              <HeaderProvider>
-                <SidebarProvider
-                  style={
-                    {
-                      "--sidebar-width": "calc(var(--spacing) * 72)",
-                      "--header-height": "calc(var(--spacing) * 12)",
-                    } as React.CSSProperties
-                  }
-                >
-                  <MorphikSidebar variant="inset" />
-                  <SidebarInset>
-                    <DynamicSiteHeader />
-                    <div className="flex flex-1 flex-col p-4 md:p-6">{children}</div>
-                  </SidebarInset>
-                </SidebarProvider>
-              </HeaderProvider>
-            </MorphikProvider>
-          </div>
+          <MorphikProvider>
+            {children}
+          </MorphikProvider>
           <AlertSystem position="bottom-right" />
         </ThemeProvider>
       </body>

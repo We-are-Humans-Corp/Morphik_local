@@ -100,6 +100,8 @@ COPY --from=builder /usr/local/share/nltk_data /usr/local/share/nltk_data
 
 ## copy fde package to avoid error at server startup
 COPY --from=builder /app/fde ./fde
+COPY --from=builder /app/core ./core
+COPY --from=builder /app/ee ./ee
 
 # Create necessary directories
 RUN mkdir -p storage logs
@@ -167,9 +169,7 @@ fi\n\
 COPY pyproject.toml uv.lock ./
 
 ## copy the fde package also to fix distribution not found error
-COPY fde ./fde
-
-COPY ee ./ee
+COPY --from=builder /app/fde ./fde
 COPY README.md LICENSE ./
 # Assuming start_server.py is at the root of your project
 COPY start_server.py ./

@@ -33,7 +33,7 @@ const data = {
   user: {
     name: "Morphik User",
     email: "user@morphik.ai",
-    avatar: "/assets/placeholder-user.jpg",
+    avatar: "/assets/placeholder-user.svg",
   },
   navMain: [
     {

@@ -57,7 +57,7 @@ export function ModelSelector({
 
         // Load custom models from new endpoint
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://api.morphik.ai"}/models/custom`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://api.morphik.ai"}/custom`, {
             headers: {
               Authorization: `Bearer ${authToken}`,
             },
@@ -204,11 +204,9 @@ export function ModelSelector({
   // Special handling for default model
   const displayName = currentModel === "default" ? "Morphik (default)" : selectedModelData?.name || "Select model";
   const isModelAvailable = (model: Model) => {
-    // Custom models are available if they have an API key in their config or in saved API keys
-    if (model.id.startsWith("custom_")) {
-      return availableProviders.has(model.provider);
-    }
-    return availableProviders.has(model.provider) || model.provider === "configured";
+    // In self-hosted mode, show all models
+    // The backend will handle API key validation
+    return true;
   };
 
   const handleModelSelect = (model: Model) => {

@@ -126,7 +126,7 @@ export function ModelManager({ apiKeys, authToken }: ModelManagerProps) {
     const loadModels = async () => {
       try {
         if (authToken) {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://api.morphik.ai"}/models/custom`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://api.morphik.ai"}/custom`, {
             headers: {
               Authorization: `Bearer ${authToken}`,
             },

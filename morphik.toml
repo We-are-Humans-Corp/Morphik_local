@@ -21,8 +21,8 @@ azure_gpt4 = { model_name = "gpt-4", api_base = "YOUR_AZURE_URL_HERE", api_versi
 azure_gpt35 = { model_name = "gpt-3.5-turbo", api_base = "YOUR_AZURE_URL_HERE", api_version = "2023-05-15", deployment_id = "gpt-35-turbo-deployment" }
 
 # Anthropic models
-claude_opus = { model_name = "claude-3-opus-20240229" }
-claude_sonnet = { model_name = "claude-3-7-sonnet-latest" }
+claude_opus = { model_name = "anthropic/claude-3-opus-20240229" }
+claude_sonnet = { model_name = "anthropic/claude-3-5-sonnet-latest" }
 
 # Google Gemini models
 gemini_flash = { model_name = "gemini/gemini-2.5-flash-preview-05-20" } # gemini-2.5-flash-preview-05-20
@@ -34,9 +34,8 @@ gemini_flash = { model_name = "gemini/gemini-2.5-flash-preview-05-20" } # gemini
 # - Morphik in Docker, Ollama local: "http://host.docker.internal:11434"
 # - Both in Docker: "http://ollama:11434"
 # ollama_qwen_vision = { model_name = "gpt-4.1" } # {model_name = "groq/meta-llama/llama-4-scout-17b-16e-instruct"} #{ model_name = "ollama_chat/qwen2.5vl:latest", api_base = "http://localhost:11434", vision = true }
-ollama_qwen_vision = { model_name = "ollama_chat/qwen2.5vl:latest", api_base = "http://localhost:11434", vision = true }
-ollama_llama_vision = { model_name = "ollama_chat/llama3.2-vision", api_base = "http://localhost:11434", vision = true }
-ollama_embedding = { model_name = "ollama/nomic-embed-text", api_base = "http://localhost:11434" }
+ollama_llama = { model_name = "ollama/llama3.2:3b", api_base = "http://ollama:11434" }
+ollama_embedding = { model_name = "ollama/nomic-embed-text", api_base = "http://ollama:11434" }
 
 openai_embedding = { model_name = "text-embedding-3-small" }
 openai_embedding_large = { model_name = "text-embedding-3-large" }
@@ -46,10 +45,10 @@ azure_embedding = { model_name = "text-embedding-ada-002", api_base = "YOUR_AZUR
 #### Component configurations ####
 
 [agent]
-model = "ollama_qwen_vision" # Model for the agent logic
+model = "ollama_llama" # Model for the agent logic
 
 [completion]
-model = "ollama_qwen_vision" #"openai_gpt4-1-mini"  # Reference to a key in registered_models
+model = "ollama_llama" #"openai_gpt4-1-mini"  # Reference to a key in registered_models
 default_max_tokens = "1000"
 default_temperature = 0.3
 
@@ -74,7 +73,7 @@ chunk_size = 6000
 chunk_overlap = 300
 use_unstructured_api = false
 use_contextual_chunking = false
-contextual_chunking_model = "ollama_qwen_vision"  # Reference to a key in registered_models
+contextual_chunking_model = "ollama_llama"  # Reference to a key in registered_models
 
 [parser.xml]
 max_tokens = 350
@@ -82,20 +81,20 @@ preferred_unit_tags = ["SECTION", "Section", "Article", "clause"]
 ignore_tags = ["TOC", "INDEX"]
 
 [document_analysis]
-model = "ollama_qwen_vision"  # Reference to a key in registered_models
+model = "ollama_llama"  # Reference to a key in registered_models
 
 [parser.vision]
-model = "ollama_qwen_vision"  # Reference to a key in registered_models
+model = "ollama_llama"  # Reference to a key in registered_models
 frame_sample_rate = -1  # Set to -1 to disable frame captioning
 
 [reranker]
-use_reranker = true
+use_reranker = false  # Отключаем пока, чтобы не блокировать запуск
 provider = "flag"
 model_name = "BAAI/bge-reranker-large"
 query_max_length = 256
 passage_max_length = 512
 use_fp16 = true
-device = "mps" # use "cpu" if on docker and using a mac, "cuda" if cuda enabled device
+device = "cpu" # use "cpu" if on docker and using a mac, "cuda" if cuda enabled device
 
 [storage]
 provider = "local"
@@ -114,25 +113,25 @@ provider = "pgvector"
 provider = "postgres"  # "morphik" # "postgres"  # "postgres" or "morphik" for fast implementation
 
 [rules]
-model = "ollama_qwen_vision"
+model = "ollama_llama"
 batch_size = 4096
 
 [morphik]
-enable_colpali = true
+enable_colpali = false  # Отключаем ColPali
 mode = "self_hosted"  # "cloud" or "self_hosted"
 api_domain = "api.morphik.ai"  # API domain for cloud URIs
 # Only call the embedding API if colpali_mode is "api"
 morphik_embedding_api_domain = "http://localhost:6000"  # endpoint for multivector embedding service
-colpali_mode = "local" # "off", "local", or "api"
+colpali_mode = "off" # "off", "local", or "api"
 
 [pdf_viewer]
 frontend_url = "http://localhost:3000/api/pdf" # "https://morphik.ai/api/pdf" # "http://localhost:3000/api/pdf" # "https://morphik.ai/api/pdf"
 
 [workflows]
-model = "gemini_flash"  # Model for workflow extraction tasks
+model = "ollama_llama"  # Model for workflow extraction tasks
 
 [graph]
-model = "ollama_qwen_vision"
+model = "ollama_llama"
 enable_entity_resolution = true
 
 # [graph]
