@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 import hashlib
 import secrets
 
@@ -20,6 +20,12 @@ class UserLogin(BaseModel):
 
 class UserResponse(BaseModel):
     """User response model without password."""
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        }
+    )
+    
     id: str
     username: str
     email: Optional[str] = None
@@ -28,6 +34,12 @@ class UserResponse(BaseModel):
 
 class UserInDB(BaseModel):
     """User model as stored in database."""
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        }
+    )
+    
     id: str
     username: str
     password_hash: str

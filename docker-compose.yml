@@ -129,6 +129,20 @@ services:
       - morphik-network
     entrypoint: ["/ollama-entrypoint.sh"]
 
+  ui:
+    build:
+      context: ./ee/ui-component
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NODE_ENV=production
+    depends_on:
+      - morphik
+    networks:
+      - morphik-network
+
 networks:
   morphik-network:
     driver: bridge

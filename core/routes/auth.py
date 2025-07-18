@@ -49,12 +49,11 @@ async def create_user(user: UserCreate) -> UserInDB:
     try:
         user_id = str(uuid.uuid4())
         password_hash = UserInDB.hash_password(user.password)
-        created_at = datetime.now(UTC)
         
         async with document_service.db.engine.begin() as conn:
             query = text("""
-                INSERT INTO users (id, username, password_hash, email, created_at, updated_at)
-                VALUES (:id, :username, :password_hash, :email, :created_at, :updated_at)
+                INSERT INTO users (id, username, password_hash, email)
+                VALUES (:id, :username, :password_hash, :email)
                 RETURNING id, username, password_hash, email, created_at
             """)
             
@@ -64,9 +63,7 @@ async def create_user(user: UserCreate) -> UserInDB:
                     "id": user_id,
                     "username": user.username,
                     "password_hash": password_hash,
-                    "email": user.email,
-                    "created_at": created_at,
-                    "updated_at": created_at
+                    "email": user.email
                 }
             )
             
